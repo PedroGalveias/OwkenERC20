@@ -1,0 +1,34 @@
+# Using prebuilt 'node:lts-alpine' with 'truffle' and 'ganache-cli' preinstalled
+image: git.emateereal.com:5050/owken/common/truffle-testing-container:latest
+
+# Cache 'node_modules' folder and 'package-lock.json'
+cache:
+  paths:
+    - node_modules/
+
+# Running the tests of the project
+test-contracts:
+  stage: test
+  script:
+    # Verifying 'node' and 'npm' are installed
+    - node -v
+    - npm -v
+    # Installing project dependencies
+    - npm i
+    # Create MNEMONIC env variable & '.secret' file
+    - MNEMONIC="antenna catch provide eager thrive angry"
+    - echo "$MNEMONIC" > .secret
+    # Verifying 'ganache-cli' and 'truffle' are installed
+    - ganache-cli --version
+    - truffle version
+    # Starting the ganache testing node in the background with specified MNEMONIC
+    - ganache-cli -p 7545 -i 5777 -m $MNEMONIC -q > /dev/null &
+    # Running the tests
+    - truffle test
+    # Running the code coverage
+    - truffle run coverage
+  # Code coverage regex to pick up the output
+  coverage: '/All files[^|]*\|[^|]*\|[^|]*\|[^|]*\|[^|]*\s+([\d\.]+)/'
+  artifacts:
+    reports:
+      cobertura: coverage/cobertura-coverage.xml

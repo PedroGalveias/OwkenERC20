@@ -1,0 +1,9 @@
+/build
+**/node_modules
+/.vscode
+package-lock.json
+/coverage
+coverage.json
+.secret
+/.openzeppelin
+/.vscode
